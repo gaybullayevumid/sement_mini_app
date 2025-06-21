@@ -1,0 +1,1 @@
+# sement_mini_app

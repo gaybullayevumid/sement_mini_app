@@ -8,7 +8,18 @@ class Product(models.Model):
 
 
 class Order(models.Model):
-    pass
+    client = models.CharField(max_length=200)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    seller = models.CharField(max_length=255)
+    quantity = models.CharField(max_length=200)
+    total_price = models.IntegerField()
+    status = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.client
+    
 
 
 class Seller(models.Model):

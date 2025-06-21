@@ -46,7 +46,3 @@ class Order(models.Model):
 
     def __str__(self):
         return self.client
-
-
-class Seller(models.Model):
-    pass

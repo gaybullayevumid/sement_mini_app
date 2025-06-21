@@ -2,7 +2,12 @@ from django.db import models
 
 # Create your models here.
 
+
 class Product(models.Model):
+    pass
+
+
+class Order(models.Model):
     pass
 
 
@@ -17,6 +22,3 @@ class Seller(models.Model):
 
     def __str__(self):
         return self.brand
-
-class Order(models.Model):
-    pass

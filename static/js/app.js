@@ -1,6 +1,22 @@
-// Cart, role and orders logic (adapt to Django and localStorage if needed)
 let currentRole = null;
 let cart = [];
+
+// CSRF token olish (Django uchun)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        let cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === name + "=") {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 
 function updateCartBadge() {
     const badge = document.getElementById('cartBadge');
@@ -33,10 +49,9 @@ function goBack() {
 }
 
 function addToCart(productId) {
-    // AJAX orqali product ma'lumotlarini olish mumkin
     const productDiv = document.querySelector(`button[onclick="addToCart(${productId})"]`).closest('.product-item');
     const name = productDiv.querySelector('h4').innerText;
-    const price = parseInt(productDiv.querySelector('.product-price').innerText.replace(/\D/g, ''));
+    const price = parseFloat(productDiv.querySelector('.product-price').innerText.replace(/[^\d\.]/g, ''));
     let existingItem = cart.find(item => item.id === productId);
     if (existingItem) {
         existingItem.quantity += 1;
@@ -114,12 +129,43 @@ function checkout() {
         showNotification('Savat bo\'sh!', 'error');
         return;
     }
-    // Django orqali AJAX POST bilan buyurtma qilish mumkin
-    showNotification('Buyurtma muvaffaqiyatli berildi!', 'success');
-    cart = [];
-    updateCartBadge();
-    closeCart();
-    // Sahifani yangilash yoki buyurtmalar ro'yxatini yangilash
+
+    // Demo uchun client va seller static, real loyihada userdan yoki contextdan olinadi
+    const client = "Mijoz";
+    const seller = "Sotuvchi";
+
+    // Har bir cart item uchun AJAX orqali buyurtma yaratamiz
+    let promises = [];
+    cart.forEach(item => {
+        promises.push(
+            fetch('/order/add/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `product_id=${item.id}&quantity=${item.quantity}&client=${encodeURIComponent(client)}&seller=${encodeURIComponent(seller)}`
+            }).then(response => response.json())
+        );
+    });
+
+    Promise.all(promises).then(results => {
+        let allSuccess = results.every(r => r.success);
+        if (allSuccess) {
+            showNotification('Buyurtma muvaffaqiyatli berildi!', 'success');
+            cart = [];
+            updateCartBadge();
+            closeCart();
+            // Sotuvchi qismi ochiq bo‘lsa, ro‘yxatni yangilash uchun sahifani yangilash
+            if (currentRole === 'seller') {
+                window.location.reload();
+            }
+        } else {
+            showNotification('Xatolik yuz berdi!', 'error');
+        }
+    }).catch(() => {
+        showNotification('Xatolik yuz berdi!', 'error');
+    });
 }
 
 function showNotification(msg, type) {

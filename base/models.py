@@ -18,9 +18,12 @@ class Product(models.Model):
 
 class Order(models.Model):
     date = models.DateTimeField(auto_now_add=True)
-    customer = models.CharField(max_length=100)
-    total = models.PositiveIntegerField()
-    status = models.CharField(max_length=20)
-    
+    client = models.CharField(max_length=100)
+    seller = models.CharField(max_length=100)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="orders")
+    quantity = models.PositiveIntegerField()
+    total_price = models.PositiveIntegerField()
+    status = models.CharField(max_length=20, default="pending")
+
     def __str__(self):
-        return self.customer
+        return f"{self.client} - {self.product.name} ({self.quantity}t)"

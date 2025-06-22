@@ -1,6 +1,5 @@
 from django.views.generic import TemplateView, View
 from django.http import JsonResponse
-from django.shortcuts import redirect
 from .models import Product, Order
 
 class SementMarketView(TemplateView):
@@ -9,18 +8,29 @@ class SementMarketView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['products'] = Product.objects.all()
-        context['orders'] = Order.objects.all().order_by('-id')
+        context['orders'] = Order.objects.all().order_by('-id')  # Barcha buyurtmalar, sotuvchi interfeysda ko‘rinadi
         return context
 
 class OrderAddView(View):
     def post(self, request):
-        # AJAX orqali keladigan ma'lumotlar
         product_id = request.POST.get('product_id')
         quantity = request.POST.get('quantity')
         client = request.POST.get('client')
         seller = request.POST.get('seller')
-        product = Product.objects.get(id=product_id)
-        total_price = int(quantity) * product.price
+        if not (product_id and quantity and client and seller):
+            return JsonResponse({"success": False, "error": "Missing data"})
+
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Product not found"})
+
+        try:
+            quantity = int(quantity)
+        except ValueError:
+            return JsonResponse({"success": False, "error": "Invalid quantity"})
+
+        total_price = quantity * product.price
 
         order = Order.objects.create(
             client=client,

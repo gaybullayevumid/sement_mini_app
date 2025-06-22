@@ -1,5 +1,7 @@
 from django.views.generic import TemplateView, View
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from .models import Product, Order
 
 class SementMarketView(TemplateView):
@@ -41,3 +43,35 @@ class OrderAddView(View):
             status="pending"
         )
         return JsonResponse({"success": True, "order_id": order.id})
+
+class MyPendingOrdersView(View):
+    def get(self, request):
+        client = request.GET.get("client")
+        if not client:
+            return JsonResponse({"orders": []})
+        orders = Order.objects.filter(client=client, status="pending").order_by('-id')
+        data = [
+            {
+                "id": o.id,
+                "name": o.product.name,
+                "quantity": o.quantity,
+                "price": o.total_price,
+                "product_id": o.product.id,
+            }
+            for o in orders
+        ]
+        return JsonResponse({"orders": data})
+
+@method_decorator(csrf_exempt, name='dispatch')
+class CancelOrderView(View):
+    def post(self, request, order_id):
+        try:
+            order = Order.objects.get(id=order_id)
+            if order.status == "pending":
+                order.status = "canceled"
+                order.save()
+                return JsonResponse({"success": True})
+            else:
+                return JsonResponse({"success": False, "error": "Buyurtma allaqachon tasdiqlangan yoki bekor qilingan"})
+        except Order.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Buyurtma topilmadi"})

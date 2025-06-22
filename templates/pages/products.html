@@ -2,6 +2,12 @@
 
 {% block content %}
 
-{% for product in products %}{% endfor %}
+{% for product in products %}
+
+<div>
+    <h1>{{ product.name }}</h1>
+</div>
+
+{% endfor %}
 
 {% endblock content %}

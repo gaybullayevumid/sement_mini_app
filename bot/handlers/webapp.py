@@ -1,16 +1,16 @@
 from aiogram.types import WebAppInfo, MenuButtonWebApp, MenuButtonDefault
 from bot.config import WEBAPP_URL
 
+
 async def setup_bot_menu(bot):
     try:
-        if not WEBAPP_URL or not WEBAPP_URL.startswith('https://'):
+        if not WEBAPP_URL or not WEBAPP_URL.startswith("https://"):
             print(f"❌ URL noto'g'ri: {WEBAPP_URL}")
             return False
 
         await bot.set_chat_menu_button(
             menu_button=MenuButtonWebApp(
-                text="🚀 Mini App",
-                web_app=WebAppInfo(url=WEBAPP_URL)
+                text="🚀 Mini App", web_app=WebAppInfo(url=WEBAPP_URL)
             )
         )
         print(f"✅ Menu button o'rnatildi: {WEBAPP_URL}")

@@ -8,6 +8,7 @@ import logging
 
 router = Router()
 
+
 @router.message(Command("start"))
 async def start_command(message: types.Message):
     menu_success = False
@@ -15,11 +16,11 @@ async def start_command(message: types.Message):
         menu_success = await setup_bot_menu(message.bot)
     except Exception as e:
         logging.error(f"Menu button sozlashda xatolik: {e}")
-    
+
     menu_status = (
         "💡 <i>Shuningdek, pastdagi menu tugmasidan ham foydalanishingiz mumkin!</i>"
-        if menu_success else
-        "⚠️ <i>Menu button hozircha ishlamayapti, inline tugmadan foydalaning.</i>"
+        if menu_success
+        else "⚠️ <i>Menu button hozircha ishlamayapti, inline tugmadan foydalaning.</i>"
     )
 
     await message.answer(
@@ -28,8 +29,9 @@ async def start_command(message: types.Message):
         "Quyidagi tugma orqali mini appni oching:\n\n"
         f"{menu_status}",
         reply_markup=get_main_keyboard(),
-        parse_mode="HTML"
+        parse_mode="HTML",
     )
+
 
 @router.callback_query(F.data == "help")
 async def help_callback(callback: types.CallbackQuery):
@@ -41,8 +43,9 @@ async def help_callback(callback: types.CallbackQuery):
         "Mini appni ochish uchun tugmani bosing! 👇\n\n"
         "💡 <i>Agar menu button ishlamasa, inline tugmadan foydalaning.</i>",
         parse_mode="HTML",
-        reply_markup=get_main_keyboard(back_button=True)
+        reply_markup=get_main_keyboard(back_button=True),
     )
+
 
 @router.callback_query(F.data == "back_to_start")
 async def back_to_start(callback: types.CallbackQuery):
@@ -52,12 +55,14 @@ async def back_to_start(callback: types.CallbackQuery):
         "Quyidagi tugma orqali mini appni oching:\n\n"
         "💡 <i>Inline tugma ishonchli ishlaydi!</i>",
         reply_markup=get_main_keyboard(),
-        parse_mode="HTML"
+        parse_mode="HTML",
     )
+
 
 @router.message(Command("debug"))
 async def debug_command(message: types.Message):
     from bot.config import WEBAPP_URL
+
     debug_info = f"""
 🔍 <b>Debug Ma'lumotlari:</b>
 
@@ -75,17 +80,21 @@ async def debug_command(message: types.Message):
 2. Config.py yangilangami?
 3. Bot qayta ishga tushirilganmi?
     """
-    await message.answer(debug_info, parse_mode="HTML", reply_markup=get_main_keyboard(debug=True))
+    await message.answer(
+        debug_info, parse_mode="HTML", reply_markup=get_main_keyboard(debug=True)
+    )
+
 
 @router.callback_query(F.data == "refresh_menu")
 async def refresh_menu_callback(callback: types.CallbackQuery):
     success = await setup_bot_menu(callback.bot)
     status = (
-        "✅ Menu button muvaffaqiyatli yangilandi!" 
-        if success else 
-        "❌ Menu button yangilanmadi. URL ni tekshiring."
+        "✅ Menu button muvaffaqiyatli yangilandi!"
+        if success
+        else "❌ Menu button yangilanmadi. URL ni tekshiring."
     )
     await callback.answer(status, show_alert=True)
+
 
 @router.message()
 async def echo_handler(message: types.Message):
@@ -94,11 +103,11 @@ async def echo_handler(message: types.Message):
             "Mini appni ochish uchun quyidagi tugmani bosing:\n\n"
             "💡 <i>Inline tugma ishonchli ishlaydi!</i>",
             reply_markup=get_main_keyboard(),
-            parse_mode="HTML"
+            parse_mode="HTML",
         )
     else:
         await message.answer(
             "Mini appni ishlatish uchun /start buyrug'ini yuboring! 🚀\n\n"
             "🔧 <i>Debug uchun /debug buyrug'ini yuboring</i>",
-            parse_mode="HTML"
+            parse_mode="HTML",
         )

@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from .models import Product, Order
 
 class SementMarketView(TemplateView):
-    template_name = "sement_market.html"
+    template_name = "pages/home.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -1,7 +1,118 @@
 {% extends "base.html" %}
 
 {% block content %}
+<body>
+    <div class="container">
+        <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
+        
+        <div class="header">
+            <h1>🏗️ Sement Market</h1>
+            <p>Qurilish materiallari onlayn</p>
+        </div>
 
-<h1>Home page</h1>
+        <!-- Role Selector -->
+        <div id="roleSelector" class="role-selector">
+            <h2>Rolni tanlang:</h2>
+            <div class="role-cards">
+                <div class="role-card" onclick="selectRole('client')">
+                    <span class="role-icon">👤</span>
+                    <h3>Mijoz</h3>
+                    <p>Mahsulot xarid qilish</p>
+                </div>
+                <div class="role-card" onclick="selectRole('seller')">
+                    <span class="role-icon">🏪</span>
+                    <h3>Sotuvchi</h3>
+                    <p>Mahsulot sotish</p>
+                </div>
+            </div>
+        </div>
 
+        <!-- Client Interface -->
+        <div id="clientInterface" class="main-content">
+            <div class="section">
+                <h2>🛍️ Mahsulotlar</h2>
+                <div id="productList" class="product-grid">
+                    <!-- Products will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Seller Interface -->
+        <div id="sellerInterface" class="main-content">
+            <div class="section">
+                <h2>📦 Mahsulot qo'shish</h2>
+                <form id="addProductForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Mahsulot nomi:</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Brend:</label>
+                        <input type="text" id="productBrand" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mahsulot turi:</label>
+                        <input type="text" id="productType" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sifat (quality):</label>
+                        <input type="text" id="productQuality" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Og'irligi (tonna):</label>
+                        <input type="number" id="productWeight" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Rasm (image):</label>
+                        <input type="file" id="productImage" accept="image/*" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tavsif (description):</label>
+                        <textarea id="productDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Kelib chiqishi (origin):</label>
+                        <input type="text" id="productOrigin" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sement klassi (Cement class):</label>
+                        <input type="text" id="productCementClass" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Narxi (so'm):</label>
+                        <input type="number" id="productPrice" min="0" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Mahsulot qo'shish</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h2>📋 Buyurtmalar</h2>
+                <div id="ordersList">
+                    <!-- Orders will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Cart Button -->
+        <div class="floating-cart" id="floatingCart" onclick="showCart()">
+            🛒
+            <span class="cart-badge" id="cartBadge">0</span>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content">
+            <h2>🛒 Savat</h2>
+            <div id="cartItems"></div>
+            <div style="border-top: 2px solid #ecf0f1; margin-top: 20px; padding-top: 20px;">
+                <h3>Jami: <span id="totalPrice">0</span> so'm</h3>
+                <button class="btn btn-success" onclick="checkout()">Buyurtma berish</button>
+                <button class="btn" onclick="closeCart()">Yopish</button>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
 {% endblock content %}

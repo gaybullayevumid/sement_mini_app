@@ -7,6 +7,7 @@ from .models import User, Product, Order
 class HomePageView(TemplateView):
     template_name = "pages/home.html"
 
+
 class ProductPageView(ListView):
     model = Product
     template_name = "pages/products.html"

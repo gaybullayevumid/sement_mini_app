@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import HomePageView, ProductPageView
+from .views import SementMarketView
 
 urlpatterns = [
-    path("", HomePageView.as_view(), name="home"),
-    path("products/", ProductPageView.as_view(), name="product"),
+    path("", SementMarketView.as_view(), name="home"),
+    # path("products/", SementMarketView.as_view(), name="product"),
 ]

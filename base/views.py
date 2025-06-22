@@ -1,14 +1,11 @@
-from django.views.generic import TemplateView, ListView
-from .models import User, Product, Order
+from django.views.generic import TemplateView
+from .models import Product, Order
 
-# Create your views here.
-
-
-class HomePageView(TemplateView):
+class SementMarketView(TemplateView):
     template_name = "pages/home.html"
 
-
-class ProductPageView(ListView):
-    model = Product
-    template_name = "pages/products.html"
-    context_object_name = "products"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['products'] = Product.objects.all()
+        context['orders'] = Order.objects.all().order_by('-id')
+        return context

@@ -1,118 +1,106 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
-<body>
-    <div class="container">
-        <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
-        
-        <div class="header">
-            <h1>🏗️ Sement Market</h1>
-            <p>Qurilish materiallari onlayn</p>
-        </div>
+<div class="container">
+    <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
+    <div class="header">
+        <h1>🏗️ Sement Market</h1>
+        <p>Qurilish materiallari onlayn</p>
+    </div>
 
-        <!-- Role Selector -->
-        <div id="roleSelector" class="role-selector">
-            <h2>Rolni tanlang:</h2>
-            <div class="role-cards">
-                <div class="role-card" onclick="selectRole('client')">
-                    <span class="role-icon">👤</span>
-                    <h3>Mijoz</h3>
-                    <p>Mahsulot xarid qilish</p>
-                </div>
-                <div class="role-card" onclick="selectRole('seller')">
-                    <span class="role-icon">🏪</span>
-                    <h3>Sotuvchi</h3>
-                    <p>Mahsulot sotish</p>
-                </div>
+    <!-- Role Selector -->
+    <div id="roleSelector" class="role-selector">
+        <h2>Rolni tanlang:</h2>
+        <div class="role-cards">
+            <div class="role-card" onclick="selectRole('client')">
+                <span class="role-icon">👤</span>
+                <h3>Mijoz</h3>
+                <p>Mahsulot xarid qilish</p>
             </div>
-        </div>
-
-        <!-- Client Interface -->
-        <div id="clientInterface" class="main-content">
-            <div class="section">
-                <h2>🛍️ Mahsulotlar</h2>
-                <div id="productList" class="product-grid">
-                    <!-- Products will be loaded here -->
-                </div>
+            <div class="role-card" onclick="selectRole('seller')">
+                <span class="role-icon">🏪</span>
+                <h3>Sotuvchi</h3>
+                <p>Mahsulot sotish</p>
             </div>
-        </div>
-
-        <!-- Seller Interface -->
-        <div id="sellerInterface" class="main-content">
-            <div class="section">
-                <h2>📦 Mahsulot qo'shish</h2>
-                <form id="addProductForm" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label>Mahsulot nomi:</label>
-                        <input type="text" id="productName" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Brend:</label>
-                        <input type="text" id="productBrand" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Mahsulot turi:</label>
-                        <input type="text" id="productType" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Sifat (quality):</label>
-                        <input type="text" id="productQuality" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Og'irligi (tonna):</label>
-                        <input type="number" id="productWeight" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Rasm (image):</label>
-                        <input type="file" id="productImage" accept="image/*" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Tavsif (description):</label>
-                        <textarea id="productDescription" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Kelib chiqishi (origin):</label>
-                        <input type="text" id="productOrigin" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Sement klassi (Cement class):</label>
-                        <input type="text" id="productCementClass" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Narxi (so'm):</label>
-                        <input type="number" id="productPrice" min="0" required>
-                    </div>
-                    <button type="submit" class="btn btn-success">Mahsulot qo'shish</button>
-                </form>
-            </div>
-
-            <div class="section">
-                <h2>📋 Buyurtmalar</h2>
-                <div id="ordersList">
-                    <!-- Orders will be loaded here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Floating Cart Button -->
-        <div class="floating-cart" id="floatingCart" onclick="showCart()">
-            🛒
-            <span class="cart-badge" id="cartBadge">0</span>
         </div>
     </div>
 
-    <!-- Cart Modal -->
-    <div id="cartModal" class="modal">
-        <div class="modal-content">
-            <h2>🛒 Savat</h2>
-            <div id="cartItems"></div>
-            <div style="border-top: 2px solid #ecf0f1; margin-top: 20px; padding-top: 20px;">
-                <h3>Jami: <span id="totalPrice">0</span> so'm</h3>
-                <button class="btn btn-success" onclick="checkout()">Buyurtma berish</button>
-                <button class="btn" onclick="closeCart()">Yopish</button>
+    <!-- Client Interface -->
+    <div id="clientInterface" class="main-content">
+        <div class="section">
+            <h2>🛍️ Mahsulotlar</h2>
+            <div id="productList" class="product-grid">
+                {% for product in products %}
+                <div class="product-item">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="Rasm" style="width:100%;max-width:180px;border-radius:8px;margin-bottom:10px;" />
+                    {% endif %}
+                    <h4>{{ product.name }}</h4>
+                    <p><b>Brend:</b> {{ product.brand }}</p>
+                    <p><b>Turi:</b> {{ product.type }}</p>
+                    <p><b>Sifat:</b> {{ product.quality }}</p>
+                    <p><b>Og'irligi:</b> {{ product.weight }} t</p>
+                    <p><b>Klass:</b> {{ product.cement_class }}</p>
+                    <p><b>Kelib chiqishi:</b> {{ product.origin }}</p>
+                    <p>{{ product.description }}</p>
+                    <div class="product-price">{{ product.price }} so'm/tonna</div>
+                    <button class="btn" onclick="addToCart({{ product.id }})" {% if product.weight == 0 %}disabled{% endif %}>
+                        {% if product.weight == 0 %}Tugagan{% else %}Savatga qo'shish{% endif %}
+                    </button>
+                </div>
+                {% empty %}
+                <p class="loading">Mahsulotlar yuklanmoqda</p>
+                {% endfor %}
             </div>
         </div>
     </div>
-    <script src="app.js"></script>
-</body>
+
+    <!-- Seller Interface -->
+    <div id="sellerInterface" class="main-content">
+        <div class="section">
+            <h2>📋 Buyurtmalar</h2>
+            <div id="ordersList">
+                {% for order in orders %}
+                <div class="order-item">
+                    <h4>Buyurtma #{{ order.id }}</h4>
+                    <p><b>Vaqti:</b> {{ order.created_at }}</p>
+                    <p><b>Buyurtmachi:</b> {{ order.client }}</p>
+                    <p><b>Jami:</b> {{ order.total_price }} so'm</p>
+                    <p><b>Status:</b>
+                        <span class="order-status status-{{ order.status }}">{{ order.status }}</span>
+                    </p>
+                    <div>
+                        <b>Mahsulot:</b>
+                        <ul>
+                            <li>{{ order.product.name }} x {{ order.quantity }} t</li>
+                        </ul>
+                    </div>
+                </div>
+                {% empty %}
+                    <p style="text-align: center; color: #7f8c8d;">Buyurtmalar yo‘q</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Cart Button -->
+    <div class="floating-cart" id="floatingCart" onclick="showCart()">
+        🛒
+        <span class="cart-badge" id="cartBadge">0</span>
+    </div>
+</div>
+
+<!-- Cart Modal -->
+<div id="cartModal" class="modal">
+    <div class="modal-content">
+        <h2>🛒 Savat</h2>
+        <div id="cartItems"></div>
+        <div style="border-top: 2px solid #ecf0f1; margin-top: 20px; padding-top: 20px;">
+            <h3>Jami: <span id="totalPrice">0</span> so'm</h3>
+            <button class="btn btn-success" onclick="checkout()">Buyurtma berish</button>
+            <button class="btn" onclick="closeCart()">Yopish</button>
+        </div>
+    </div>
+</div>
 {% endblock content %}

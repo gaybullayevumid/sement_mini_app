@@ -8,7 +8,6 @@ function getCookie(name) {
         let cookies = document.cookie.split(";");
         for (let i = 0; i < cookies.length; i++) {
             let cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
             if (cookie.substring(0, name.length + 1) === name + "=") {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
@@ -48,8 +47,15 @@ function goBack() {
     closeCart();
 }
 
+// TO'G'RILANGAN: addToCart faqat tanlangan product uchun ishlaydi
 function addToCart(productId) {
-    const productDiv = document.querySelector(`button[onclick="addToCart(${productId})"]`).closest('.product-item');
+    // Barcha product-item'larni aylanamiz va to'g'ri button/productId ni topamiz
+    const productDiv = Array.from(document.querySelectorAll('.product-item')).find(item => {
+        const btn = item.querySelector('button.btn');
+        return btn && btn.getAttribute('onclick') === `addToCart(${productId})`;
+    });
+    if (!productDiv) return;
+
     const name = productDiv.querySelector('h4').innerText;
     const price = parseFloat(productDiv.querySelector('.product-price').innerText.replace(/[^\d\.]/g, ''));
     let existingItem = cart.find(item => item.id === productId);

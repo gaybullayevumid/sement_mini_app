@@ -64,7 +64,7 @@
                 {% for order in orders %}
                 <div class="order-item">
                     <h4>Buyurtma #{{ order.id }}</h4>
-                    <p><b>Vaqti:</b> {{ order.created_at }}</p>
+                    <p><b>Vaqti:</b> {{ order.date|date:"Y-m-d H:i" }}</p>
                     <p><b>Buyurtmachi:</b> {{ order.client }}</p>
                     <p><b>Jami:</b> {{ order.total_price }} so'm</p>
                     <p><b>Status:</b>

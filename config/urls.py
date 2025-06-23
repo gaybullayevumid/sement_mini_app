@@ -16,7 +16,7 @@ schema_view = get_schema_view(
         license=openapi.License(name='Webbro License'),
     ),
     public=True,
-    permission_classes=[permissions.AllowAny],
+    permission_classes=(permissions.AllowAny,),
 )
 
 
@@ -25,5 +25,4 @@ urlpatterns = [
     path("api/", include("base.urls")),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema json'),
 ] 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-# + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

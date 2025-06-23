@@ -14,7 +14,22 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+# YANGI: Cart modeli qo'shildi
+class Cart(models.Model):
+    user_id = models.CharField(max_length=100)  # Telegram user ID yoki session
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user_id} - {self.product.name} ({self.quantity})"
+
+    def total_price(self):
+        return self.product.price * self.quantity
+
+    class Meta:
+        unique_together = ('user_id', 'product')  # Bir user bir mahsulotni faqat bir marta qo'sha oladi
 
 class Order(models.Model):
     date = models.DateTimeField(auto_now_add=True)

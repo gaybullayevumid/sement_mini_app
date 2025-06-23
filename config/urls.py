@@ -9,11 +9,11 @@ from django.contrib.auth import views as auth_views
 
 schema_view = get_schema_view(
     openapi.Info(
-        title='Dashboard Memo API',
-        default_version='v1',
-        description='API documentation for dashboard memo',
-        contact=openapi.Contact(email='umidgaybullayev955@gmail.com'),
-        license=openapi.License(name='Webbro License'),
+        title="Dashboard Memo API",
+        default_version="v1",
+        description="API documentation for dashboard memo",
+        contact=openapi.Contact(email="umidgaybullayev955@gmail.com"),
+        license=openapi.License(name="Webbro License"),
     ),
     public=True,
     permission_classes=[permissions.AllowAny],
@@ -24,7 +24,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/login/", auth_views.LoginView.as_view(), name="login"),
     path("api/", include("base.urls")),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema json'),
-] 
+    path(
+        "swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema json"
+    ),
+]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-

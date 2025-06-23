@@ -1,8 +1,8 @@
 let currentRole = null;
-let cart = [];
-const clientName = "Mijoz"; // Real loyihada foydalanuvchi nomini olish lozim
-const userId = "default_user"; // Real loyihada Telegram user ID
+const clientName = "Mijoz";
+const userId = window.USER_ID;
 
+// Helper: Get cookie for CSRF
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
@@ -18,8 +18,8 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// Cart badge updater
 function updateCartBadge() {
-    // Serverdan savat ma'lumotlarini olish
     fetch(`/cart/view/?user_id=${userId}`)
         .then(response => response.json())
         .then(data => {
@@ -31,6 +31,7 @@ function updateCartBadge() {
         .catch(error => console.error('Cart badge update error:', error));
 }
 
+// Role selector
 function selectRole(role) {
     currentRole = role;
     document.getElementById('roleSelector').style.display = 'none';
@@ -38,7 +39,7 @@ function selectRole(role) {
     if (role === 'client') {
         document.getElementById('clientInterface').classList.add('active');
         document.getElementById('floatingCart').classList.add('show');
-        updateCartBadge(); // Mijoz interfeysini ochganda cartni yangilash
+        updateCartBadge();
     } else if (role === 'seller') {
         document.getElementById('sellerInterface').classList.add('active');
     }
@@ -54,19 +55,19 @@ function goBack() {
     closeCart();
 }
 
-// YANGI: Savatga qo'shish funksiyasi - serverga yuboradi
+// Add to cart (always uses FormData for compatibility with backend)
 function addToCart(productId) {
+    const formData = new FormData();
+    formData.append('product_id', productId);
+    formData.append('user_id', userId);
+    formData.append('quantity', 1);
+
     fetch('/cart/add/', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
         },
-        body: JSON.stringify({
-            product_id: productId,
-            user_id: userId,
-            quantity: 1
-        })
+        body: formData
     })
     .then(response => response.json())
     .then(data => {
@@ -78,30 +79,26 @@ function addToCart(productId) {
         }
     })
     .catch(error => {
-        console.error('Add to cart error:', error);
         showNotification('Xatolik yuz berdi', 'error');
     });
 }
 
-// YANGI: Savatni ko'rsatish - serverdan ma'lumot oladi
+// Show cart modal, load cart items
 function showCart() {
     const modal = document.getElementById('cartModal');
     const cartItems = document.getElementById('cartItems');
     cartItems.innerHTML = '<p style="text-align: center;">Yuklanmoqda...</p>';
     modal.classList.add('show');
 
-    // Serverdan cart ma'lumotlarini olish
     fetch(`/cart/view/?user_id=${userId}`)
         .then(response => response.json())
         .then(data => {
             cartItems.innerHTML = '';
-            
             if (!data.success || data.cart_items.length === 0) {
                 cartItems.innerHTML = '<p style="text-align: center; color: #7f8c8d;">Savat bo\'sh</p>';
                 document.getElementById('totalPrice').textContent = '0';
                 return;
             }
-
             let total = 0;
             data.cart_items.forEach(item => {
                 const itemDiv = document.createElement('div');
@@ -123,15 +120,13 @@ function showCart() {
                 cartItems.appendChild(itemDiv);
                 total += item.total_price;
             });
-
             document.getElementById('totalPrice').textContent = total.toLocaleString();
         })
         .catch(error => {
-            console.error('Show cart error:', error);
             cartItems.innerHTML = '<p style="text-align: center; color: #e74c3c;">Xatolik yuz berdi</p>';
         });
 
-    // Pending orderlarni ham ko'rsatish (eski kod)
+    // Pending orders
     fetch(`/order/my_pending/?client=${encodeURIComponent(clientName)}`)
         .then(response => response.json())
         .then(data => {
@@ -153,8 +148,7 @@ function showCart() {
                     cartItems.appendChild(itemDiv);
                 });
             }
-        })
-        .catch(error => console.error('Pending orders error:', error));
+        });
 }
 
 function closeCart() {
@@ -164,7 +158,7 @@ function closeCart() {
     }
 }
 
-// YANGI: Cart quantity ni o'zgartirish
+// Update cart item quantity (uses JSON)
 function updateCartQuantity(cartItemId, newQuantity) {
     if (newQuantity <= 0) {
         removeFromCart(cartItemId);
@@ -186,19 +180,18 @@ function updateCartQuantity(cartItemId, newQuantity) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showCart(); // Cart ni qayta yuklash
+            showCart();
             updateCartBadge();
         } else {
             showNotification(data.error || 'Xatolik yuz berdi', 'error');
         }
     })
     .catch(error => {
-        console.error('Update quantity error:', error);
         showNotification('Xatolik yuz berdi', 'error');
     });
 }
 
-// YANGI: Savatdan o'chirish
+// Remove from cart (uses JSON)
 function removeFromCart(cartItemId) {
     fetch('/cart/remove/', {
         method: 'POST',
@@ -215,18 +208,18 @@ function removeFromCart(cartItemId) {
     .then(data => {
         if (data.success) {
             showNotification('Mahsulot savatdan o\'chirildi', 'info');
-            showCart(); // Cart ni qayta yuklash
+            showCart();
             updateCartBadge();
         } else {
             showNotification(data.error || 'Xatolik yuz berdi', 'error');
         }
     })
     .catch(error => {
-        console.error('Remove from cart error:', error);
         showNotification('Xatolik yuz berdi', 'error');
     });
 }
 
+// Cancel order
 function cancelOrder(orderId) {
     fetch(`/order/cancel/${orderId}/`, {
         method: 'POST',
@@ -245,7 +238,7 @@ function cancelOrder(orderId) {
     });
 }
 
-// YANGI: Checkout funksiyasi - serverga yuboradi
+// Checkout
 function checkout() {
     fetch('/cart/checkout/', {
         method: 'POST',
@@ -273,22 +266,15 @@ function checkout() {
         }
     })
     .catch(error => {
-        console.error('Checkout error:', error);
         showNotification('Xatolik yuz berdi!', 'error');
     });
 }
 
+// Alert notification (replace with toast if you wish)
 function showNotification(msg, type) {
-    alert(msg); // Custom notification logic uchun o'zgartiring
+    alert(msg);
 }
 
-// Sahifa yuklanganda cartni yangilash
 window.onload = function() {
     updateCartBadge();
 };
-
-// Eski funksiyalar - backward compatibility uchun
-function updateQuantity(productId, change) {
-    // Bu funksiya endi ishlatilmaydi, lekin xatolik chiqmasligi uchun qoldirildi
-    console.warn('updateQuantity is deprecated, use updateCartQuantity instead');
-}

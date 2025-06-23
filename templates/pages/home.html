@@ -2,6 +2,14 @@
 {% load static %}
 
 {% block content %}
+<!-- Telegram user_id ni olish uchun script -->
+<script>
+  window.USER_ID = (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe &&
+    window.Telegram.WebApp.initDataUnsafe.user && window.Telegram.WebApp.initDataUnsafe.user.id)
+    ? window.Telegram.WebApp.initDataUnsafe.user.id
+    : 'test_user';
+</script>
+
 <div class="container">
     <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
     <div class="header">
@@ -103,4 +111,7 @@
         </div>
     </div>
 </div>
+
+<!-- Sement cart JS (static/sement_cart.js) -->
+<script src="{% static 'sement_cart.js' %}"></script>
 {% endblock content %}

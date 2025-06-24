@@ -126,8 +126,11 @@ class SellerProductViewSet(viewsets.ModelViewSet):
         seller = get_object_or_404(Seller, pk=seller_id)
         serializer.save(seller=seller)
 
+from rest_framework.generics import RetrieveUpdateAPIView
+
 class ClientAuthView(APIView):
     permission_classes = [AllowAny]
+    
     def post(self, request):
         telegram_id = request.data.get("telegram_id")
         telegram_username = request.data.get("telegram_username", "")
@@ -155,6 +158,51 @@ class ClientAuthView(APIView):
                 "message": "Yangi client yaratildi" if created else "Client topildi",
             }
         )
+
+    def get(self, request):
+        """
+        Get client by telegram_id (pass as query param).
+        """
+        telegram_id = request.query_params.get("telegram_id")
+        if not telegram_id:
+            return Response(
+                {"error": "telegram_id majburiy"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        client = get_object_or_404(Client, telegram_id=telegram_id)
+        serializer = ClientSerializer(client)
+        return Response(serializer.data)
+
+    def put(self, request):
+        """
+        Update (replace) client info by telegram_id (pass as data param).
+        """
+        telegram_id = request.data.get("telegram_id")
+        if not telegram_id:
+            return Response(
+                {"error": "telegram_id majburiy"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        client = get_object_or_404(Client, telegram_id=telegram_id)
+        serializer = ClientSerializer(client, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request):
+        """
+        Partial update client info by telegram_id (pass as data param).
+        """
+        telegram_id = request.data.get("telegram_id")
+        if not telegram_id:
+            return Response(
+                {"error": "telegram_id majburiy"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        client = get_object_or_404(Client, telegram_id=telegram_id)
+        serializer = ClientSerializer(client, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SellerOrderViewSet(viewsets.ModelViewSet):
     serializer_class = SellerOrderSerializer

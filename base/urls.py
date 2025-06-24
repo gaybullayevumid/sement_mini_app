@@ -8,6 +8,7 @@ from .views import (
     SellerViewSet,
     SellerProductViewSet,
     SellerOrderViewSet,
+    ClientAuthView,
 )
 
 router = DefaultRouter()
@@ -23,6 +24,7 @@ sellers_router.register(r"orders", SellerOrderViewSet, basename="seller-orders")
 urlpatterns = [
     path("", include(router.urls)),
     path("", include(sellers_router.urls)),
+    path("clients/login_or_register/", ClientAuthView.as_view(), name="client-login-or-register"),
 ]
 
 # API endpoints:

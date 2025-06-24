@@ -9,9 +9,9 @@ from django.contrib.auth import views as auth_views
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Dashboard Memo API",
+        title="Sement Savdo",
         default_version="v1",
-        description="API documentation for dashboard memo",
+        description="API documentation for sement savdo",
         contact=openapi.Contact(email="umidgaybullayev955@gmail.com"),
         license=openapi.License(name="Webbro License"),
     ),

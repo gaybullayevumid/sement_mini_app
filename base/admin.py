@@ -1,7 +1,6 @@
 from django.contrib import admin
 from .models import Product, Order, Cart, Seller
 
-
 @admin.register(Seller)
 class SellerAdmin(admin.ModelAdmin):
     list_display = [
@@ -70,9 +69,9 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ["user_id", "product", "quantity", "total_price", "created_at"]
+    list_display = ["client", "product", "quantity", "total_price", "created_at"]
     list_filter = ["created_at", "product__seller"]
-    search_fields = ["user_id", "product__name"]
+    search_fields = ["client__first_name", "product__name"]
 
     def total_price(self, obj):
         return obj.total_price()
@@ -94,8 +93,7 @@ class OrderAdmin(admin.ModelAdmin):
     ]
     list_filter = ["status", "date", "seller", "product__type"]
     search_fields = [
-        "client",
-        "client_telegram_id",
+        "client__first_name",
         "product__name",
         "seller__business_name",
     ]
@@ -104,7 +102,7 @@ class OrderAdmin(admin.ModelAdmin):
     fieldsets = (
         (
             "Buyurtma Ma'lumotlar",
-            {"fields": ("client", "client_telegram_id", "seller", "product")},
+            {"fields": ("client", "seller", "product")},
         ),
         ("Miqdor va Narx", {"fields": ("quantity", "total_price", "status")}),
         ("Mijoz Ma'lumotlar", {"fields": ("client_address", "client_phone", "notes")}),

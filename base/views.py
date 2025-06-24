@@ -30,6 +30,18 @@ class SellerViewSet(viewsets.ModelViewSet):
             return SellerCreateSerializer
         return SellerSerializer
 
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['telegram_id'],
+            properties={
+                'telegram_id': openapi.Schema(type=openapi.TYPE_STRING, description='Telegram ID'),
+                'telegram_username': openapi.Schema(type=openapi.TYPE_STRING, description='Telegram username'),
+                'first_name': openapi.Schema(type=openapi.TYPE_STRING, description='First name'),
+                'last_name': openapi.Schema(type=openapi.TYPE_STRING, description='Last name'),
+            },
+        )
+    )
     @action(detail=False, methods=["post"])
     def login_or_register(self, request):
         telegram_id = request.data.get("telegram_id")
@@ -120,65 +132,15 @@ class SellerViewSet(viewsets.ModelViewSet):
 class SellerProductViewSet(viewsets.ModelViewSet):
     serializer_class = SellerProductSerializer
     permission_classes = [AllowAny]
+
     def get_queryset(self):
         seller_id = self.kwargs.get("seller_pk")
         return Product.objects.filter(seller_id=seller_id)
+
     def perform_create(self, serializer):
         seller_id = self.kwargs.get("seller_pk")
         seller = get_object_or_404(Seller, pk=seller_id)
         serializer.save(seller=seller)
-
-
-class SellerViewSet(viewsets.ModelViewSet):
-    queryset = Seller.objects.all()
-    permission_classes = [AllowAny]
-
-    def get_serializer_class(self):
-        if self.action == "create":
-            return SellerCreateSerializer
-        return SellerSerializer
-
-    @swagger_auto_schema(
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            required=['telegram_id'],
-            properties={
-                'telegram_id': openapi.Schema(type=openapi.TYPE_STRING, description='Telegram ID'),
-                'telegram_username': openapi.Schema(type=openapi.TYPE_STRING, description='Telegram username'),
-                'first_name': openapi.Schema(type=openapi.TYPE_STRING, description='First name'),
-                'last_name': openapi.Schema(type=openapi.TYPE_STRING, description='Last name'),
-            },
-        )
-    )
-    @action(detail=False, methods=["post"])
-    def login_or_register(self, request):
-        telegram_id = request.data.get("telegram_id")
-        telegram_username = request.data.get("telegram_username", "")
-        first_name = request.data.get("first_name", "")
-        last_name = request.data.get("last_name", "")
-        if not telegram_id:
-            return Response(
-                {"error": "telegram_id majburiy"}, status=status.HTTP_400_BAD_REQUEST
-            )
-        seller, created = Seller.objects.get_or_create(
-            telegram_id=telegram_id,
-            defaults={
-                "telegram_username": telegram_username,
-                "first_name": first_name,
-                "last_name": last_name,
-                "business_name": f"{first_name} biznes",
-                "phone_number": "",
-                "address": "",
-            },
-        )
-        serializer = SellerSerializer(seller)
-        return Response(
-            {
-                "seller": serializer.data,
-                "is_new": created,
-                "message": "Yangi seller yaratildi" if created else "Seller topildi",
-            }
-        )
 
 class ClientAuthView(APIView):
     permission_classes = [AllowAny]
@@ -195,7 +157,6 @@ class ClientAuthView(APIView):
             },
         )
     )
-    
     def post(self, request):
         telegram_id = request.data.get("telegram_id")
         telegram_username = request.data.get("telegram_username", "")
@@ -269,13 +230,17 @@ class ClientAuthView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
 class SellerOrderViewSet(viewsets.ModelViewSet):
     serializer_class = SellerOrderSerializer
     permission_classes = [AllowAny]
     http_method_names = ["get", "patch"]
+
     def get_queryset(self):
         seller_id = self.kwargs.get("seller_pk")
         return Order.objects.filter(seller_id=seller_id)
+
     @action(detail=True, methods=["patch"])
     def update_status(self, request, seller_pk=None, pk=None):
         order = self.get_object()
@@ -293,6 +258,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.filter(is_available=True)
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
+
     def get_queryset(self):
         queryset = super().get_queryset()
         search = self.request.query_params.get("search")
@@ -308,11 +274,13 @@ class ProductViewSet(viewsets.ModelViewSet):
 class CartViewSet(viewsets.ModelViewSet):
     serializer_class = CartSerializer
     permission_classes = [AllowAny]
+
     def get_queryset(self):
         client_id = self.request.query_params.get("client_id")
         if client_id:
             return Cart.objects.filter(client_id=client_id)
         return Cart.objects.none()
+
     @action(detail=False, methods=["post"])
     def add_item(self, request):
         client_id = request.data.get("client_id")
@@ -332,6 +300,7 @@ class CartViewSet(viewsets.ModelViewSet):
             cart_item.save()
         serializer = CartSerializer(cart_item)
         return Response(serializer.data)
+
     @action(detail=False, methods=["delete"])
     def clear_cart(self, request):
         client_id = request.query_params.get("client_id")
@@ -346,11 +315,13 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [AllowAny]
+
     def get_queryset(self):
         client_id = self.request.query_params.get("client_id")
         if client_id:
             return Order.objects.filter(client_id=client_id)
         return Order.objects.all()
+
     def perform_create(self, serializer):
         product = serializer.validated_data["product"]
         quantity = serializer.validated_data["quantity"]

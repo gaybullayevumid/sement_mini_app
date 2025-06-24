@@ -6,6 +6,8 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from rest_framework.views import APIView
 from .models import Product, Cart, Order, Seller, Client, OrderNotification
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from .serializers import (
     ProductSerializer,
     CartSerializer,
@@ -126,10 +128,73 @@ class SellerProductViewSet(viewsets.ModelViewSet):
         seller = get_object_or_404(Seller, pk=seller_id)
         serializer.save(seller=seller)
 
-from rest_framework.generics import RetrieveUpdateAPIView
+
+class SellerViewSet(viewsets.ModelViewSet):
+    queryset = Seller.objects.all()
+    permission_classes = [AllowAny]
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return SellerCreateSerializer
+        return SellerSerializer
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['telegram_id'],
+            properties={
+                'telegram_id': openapi.Schema(type=openapi.TYPE_STRING, description='Telegram ID'),
+                'telegram_username': openapi.Schema(type=openapi.TYPE_STRING, description='Telegram username'),
+                'first_name': openapi.Schema(type=openapi.TYPE_STRING, description='First name'),
+                'last_name': openapi.Schema(type=openapi.TYPE_STRING, description='Last name'),
+            },
+        )
+    )
+    @action(detail=False, methods=["post"])
+    def login_or_register(self, request):
+        telegram_id = request.data.get("telegram_id")
+        telegram_username = request.data.get("telegram_username", "")
+        first_name = request.data.get("first_name", "")
+        last_name = request.data.get("last_name", "")
+        if not telegram_id:
+            return Response(
+                {"error": "telegram_id majburiy"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        seller, created = Seller.objects.get_or_create(
+            telegram_id=telegram_id,
+            defaults={
+                "telegram_username": telegram_username,
+                "first_name": first_name,
+                "last_name": last_name,
+                "business_name": f"{first_name} biznes",
+                "phone_number": "",
+                "address": "",
+            },
+        )
+        serializer = SellerSerializer(seller)
+        return Response(
+            {
+                "seller": serializer.data,
+                "is_new": created,
+                "message": "Yangi seller yaratildi" if created else "Seller topildi",
+            }
+        )
 
 class ClientAuthView(APIView):
     permission_classes = [AllowAny]
+    
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['telegram_id'],
+            properties={
+                'telegram_id': openapi.Schema(type=openapi.TYPE_STRING, description='Telegram ID'),
+                'telegram_username': openapi.Schema(type=openapi.TYPE_STRING, description='Telegram username'),
+                'first_name': openapi.Schema(type=openapi.TYPE_STRING, description='First name'),
+                'last_name': openapi.Schema(type=openapi.TYPE_STRING, description='Last name'),
+            },
+        )
+    )
     
     def post(self, request):
         telegram_id = request.data.get("telegram_id")

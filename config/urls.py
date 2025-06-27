@@ -25,7 +25,7 @@ urlpatterns = [
     path("accounts/login/", auth_views.LoginView.as_view(), name="login"),
     path("api/", include("base.urls")),
     path(
-        "swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema json"
+        "", schema_view.with_ui("swagger", cache_timeout=0), name="schema json"
     ),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -78,9 +78,17 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default='postgres://umidch1k:Iy0E420KycH00V5qyyNjNWiZ1bDVsKHm:5432/sement_savdo'
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'sement_savdo',
+        'USER': 'umidch1k',
+        'PASSWORD': 'Iy0E420KycH00V5qyyNjNWiZ1bDVsKHm',
+        'HOST': 'dpg-d1fsg6jipnbc73a074kg-a.oregon-postgres.render.com',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
+    }
 }
 
 

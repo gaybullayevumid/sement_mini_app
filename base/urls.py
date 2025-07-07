@@ -1,28 +1,25 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from rest_framework_nested import routers
-from .views import (
-    ProductViewSet,
-    OrderViewSet,
-    CartViewSet,
-    SellerViewSet,
-    SellerProductViewSet,
-    SellerOrderViewSet,
-    ClientViewSet,
-)
-
-router = DefaultRouter()
-router.register(r"products", ProductViewSet)
-router.register(r"orders", OrderViewSet)
-router.register(r"carts", CartViewSet, basename="cart")
-router.register(r"sellers", SellerViewSet)
-router.register(r"clients", ClientViewSet, basename="client")  # ClientViewSet uchun ro'yxat va actions
-
-sellers_router = routers.NestedDefaultRouter(router, r"sellers", lookup="seller")
-sellers_router.register(r"products", SellerProductViewSet, basename="seller-products")
-sellers_router.register(r"orders", SellerOrderViewSet, basename="seller-orders")
+# myapp/urls.py
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    path("", include(router.urls)),
-    path("", include(sellers_router.urls)),
+    # API endpoints
+    path('api/users/', views.UserListCreateView.as_view(), name='user-list-create'),
+    path('api/users/<str:telegram_id>/', views.UserRetrieveUpdateView.as_view(), name='user-detail'),
+    path('api/register/', views.register_user, name='register-user'),
+    path('api/user/<str:telegram_id>/', views.get_user_by_telegram_id, name='get-user'),
+    path('api/sellers/', views.sellers_list, name='sellers-list'),
+    path('api/clients/', views.clients_list, name='clients-list'),
+    
+    # Mini app
+    path('miniapp/', views.miniapp_view, name='miniapp'),
+]
+
+# Main project urls.py
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('myapp.urls')),
 ]

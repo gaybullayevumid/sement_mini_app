@@ -1,20 +1,25 @@
-# serializers.py
 from rest_framework import serializers
-from .models import TelegramUser
+from .models import CustomUser, Product, Order, Cart
 
-class TelegramUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TelegramUser
-        fields = ['telegram_id', 'username', 'first_name', 'last_name', 
-                 'phone_number', 'created_at', 'updated_at']
-        read_only_fields = ['created_at', 'updated_at']
+        model = CustomUser
+        fields = ['id', 'username', 'first_name', 'last_name', 'phone', 'user_type']
 
-class TelegramUserCreateSerializer(serializers.ModelSerializer):
+class ProductSerializer(serializers.ModelSerializer):
+    seller = UserSerializer(read_only=True)
     class Meta:
-        model = TelegramUser
-        fields = ['telegram_id', 'username', 'first_name', 'last_name', 'phone_number']
-        
-    def validate_telegram_id(self, value):
-        if TelegramUser.objects.filter(telegram_id=value).exists():
-            raise serializers.ValidationError("Bu Telegram ID allaqachon ro'yxatdan o'tgan")
-        return value
+        model = Product
+        fields = ['id', 'name', 'description', 'price', 'seller']
+
+class OrderSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    class Meta:
+        model = Order
+        fields = ['id', 'product', 'quantity', 'created_at']
+
+class CartSerializer(serializers.ModelSerializer):
+    orders = OrderSerializer(many=True, read_only=True)
+    class Meta:
+        model = Cart
+        fields = ['id', 'client', 'orders']

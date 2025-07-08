@@ -23,7 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('base.urls')),
     path(
-        "", schema_view.with_ui("swagger", cache_timeout=0), name="schema json"
+        "swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema json"
     ),
 ]
 

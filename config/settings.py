@@ -31,8 +31,10 @@ INSTALLED_APPS = [
     # packages
     "rest_framework",
     "drf_yasg",
+    'corsheaders',
     # local apps
     "base",
+    'bot'
 ]
 
 REST_FRAMEWORK = {
@@ -42,6 +44,7 @@ REST_FRAMEWORK = {
 }
 
 LOGIN_URL = "/admin/login/"
+AUTH_USER_MODEL = 'base.TelegramUser'
 
 
 MIDDLEWARE = [

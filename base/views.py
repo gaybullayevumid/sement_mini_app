@@ -1,106 +1,115 @@
 from rest_framework import generics, status
-from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework.permissions import AllowAny
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.response import Response
 from django.http import JsonResponse
-from django.views.decorators.clickjacking import xframe_options_exempt
-from .models import User
-from .serializers import UserSerializer
-import json
+from typing import Dict, Any
+from .models import TelegramUser
+from .serializers import TelegramUserSerializer, TelegramUserCreateSerializer
 
-class UserListCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
 
-class UserRetrieveUpdateView(generics.RetrieveUpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+@api_view(['GET'])
+def health_check(request) -> JsonResponse:
+    """API ishlayotganligini tekshirish"""
+    return JsonResponse(
+        {"status": "ok", "service": "Telegram User API"},
+        status=200
+    )
+
+
+class TelegramUserListView(generics.ListAPIView):
+    """Barcha Telegram foydalanuvchilar ro'yxatini olish"""
+    queryset = TelegramUser.objects.all()
+    serializer_class = TelegramUserSerializer
+    pagination_class = None  # Pagination ishlatilmaydi
+
+
+class TelegramUserDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """Telegram ID orqali userni olish, yangilash yoki o'chirish"""
+    queryset = TelegramUser.objects.all()
+    serializer_class = TelegramUserSerializer
     lookup_field = 'telegram_id'
 
 @api_view(['POST'])
-def register_user(request):
-    """Register new user from Telegram"""
+def create_user(request) -> Response:
+    """Create or get existing Telegram user"""
+    serializer = TelegramUserCreateSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
     try:
-        data = request.data
-        telegram_id = data.get('telegram_id')
-        first_name = data.get('first_name', '')
-        last_name = data.get('last_name', '')
-        phone_number = data.get('phone_number', '')
+        validated_data = serializer.validated_data
+        telegram_id = validated_data['telegram_id']  # Will raise KeyError if missing
         
-        # Check if user already exists
-        user, created = User.objects.get_or_create(
+        user, created = TelegramUser.objects.get_or_create(
             telegram_id=telegram_id,
-            defaults={
-                'first_name': first_name,
-                'last_name': last_name,
-                'phone_number': phone_number,
-                'username': f"user_{telegram_id}"
-            }
+            defaults=validated_data
         )
         
-        if not created:
-            # Update existing user
-            user.first_name = first_name
-            user.last_name = last_name
-            if phone_number:
-                user.phone_number = phone_number
-            user.save()
+        return Response(
+            TelegramUserSerializer(user).data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
+        )
         
-        serializer = UserSerializer(user)
-        return Response({
-            'success': True,
-            'user': serializer.data,
-            'created': created
-        }, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
-        
+    except KeyError:
+        return Response(
+            {'error': 'telegram_id is required'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
     except Exception as e:
-        return Response({
-            'success': False,
-            'error': str(e)
-        }, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
 
 @api_view(['GET'])
-def get_user_by_telegram_id(request, telegram_id):
-    """Get user by telegram ID"""
+def get_user_by_telegram_id(request, telegram_id: str) -> Response:
+    """Telegram ID orqali user ma'lumotlarini olish"""
     try:
-        user = User.objects.get(telegram_id=telegram_id)
-        serializer = UserSerializer(user)
-        return Response({
-            'success': True,
-            'user': serializer.data
-        })
-    except User.DoesNotExist:
-        return Response({
-            'success': False,
-            'error': 'User not found'
-        }, status=status.HTTP_404_NOT_FOUND)
+        user = TelegramUser.objects.get(telegram_id=telegram_id)
+        serializer = TelegramUserSerializer(user)
+        return Response(serializer.data)
+    except TelegramUser.DoesNotExist:
+        return Response(
+            {'error': 'User not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
-@csrf_exempt
-@xframe_options_exempt
-def miniapp_view(request):
-    """Mini app HTML page"""
-    return render(request, 'miniapp.html')
 
-@api_view(['GET'])
-def sellers_list(request):
-    """Get all sellers"""
-    sellers = User.objects.filter(user_type='seller')
-    serializer = UserSerializer(sellers, many=True)
-    return Response({
-        'success': True,
-        'sellers': serializer.data
-    })
-
-@api_view(['GET'])
-def clients_list(request):
-    """Get all clients"""
-    clients = User.objects.filter(user_type='client')
-    serializer = UserSerializer(clients, many=True)
-    return Response({
-        'success': True,
-        'clients': serializer.data
-    })
+@api_view(['PUT', 'PATCH'])
+def update_user_by_telegram_id(request, telegram_id: str) -> Response:
+    """Telegram ID orqali user ma'lumotlarini yangilash"""
+    try:
+        user = TelegramUser.objects.get(telegram_id=telegram_id)
+        partial = request.method == 'PATCH'
+        
+        serializer = TelegramUserSerializer(
+            user,
+            data=request.data,
+            partial=partial
+        )
+        
+        if not serializer.is_valid():
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        serializer.save()
+        return Response(serializer.data)
+        
+    except TelegramUser.DoesNotExist:
+        return Response(
+            {'error': 'User not found'},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    except Exception as e:
+        return Response(
+            {'error': str(e)},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )

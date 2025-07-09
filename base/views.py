@@ -47,6 +47,15 @@ class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
+    @action(detail=False, methods=["get"], permission_classes=[permissions.IsAuthenticated])
+    def my_products(self, request):
+        """
+        Foydalanuvchi (seller) o'zining barcha productlarini ko'radi
+        """
+        products = Product.objects.filter(seller=request.user)
+        serializer = self.get_serializer(products, many=True)
+        return Response(serializer.data)
+
 
 class CartViewSet(viewsets.ModelViewSet):
     queryset = Cart.objects.all()

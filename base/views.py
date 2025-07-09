@@ -7,6 +7,7 @@ from .serializers import (
     CartSerializer,
     CategorySerializer,
     BrandSerializer,
+    SellerWithProductsSerializer,
 )
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -19,7 +20,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def sellers(self, request):
         sellers = CustomUser.objects.filter(user_type="seller")
-        serializer = self.get_serializer(sellers, many=True)
+        serializer = SellerWithProductsSerializer(sellers, many=True)
         return Response(serializer.data)
 
 

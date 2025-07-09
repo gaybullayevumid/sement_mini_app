@@ -1,11 +1,23 @@
 from rest_framework import serializers
 from .models import CustomUser, Product, Order, Cart, Brand, Category
 
+# Simple seller serializer for ProductSerializer
+class SellerShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username']
+
 class ProductSerializer(serializers.ModelSerializer):
-    seller = serializers.PrimaryKeyRelatedField(read_only=True)
+    seller = SellerShortSerializer(read_only=True)
     class Meta:
         model = Product
         fields = ['id', 'name', 'description', 'price', 'category', 'image', 'quantity', 'brand', 'seller', 'created_at']
+
+class SellerWithProductsSerializer(serializers.ModelSerializer):
+    products = ProductSerializer(many=True, read_only=True)
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'first_name', 'last_name', 'phone', 'user_type', 'products']
 
 class UserSerializer(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
@@ -15,12 +27,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'first_name', 'last_name', 'phone', 'user_type', 'products']
 
     def get_products(self, obj):
-        if obj.user_type == "seller":
-            products = obj.products.all()
-            return ProductSerializer(products, many=True).data
-        return []
+        products = obj.products.all()
+        return ProductSerializer(products, many=True).data
 
-# Qolgan serializerlar o'zgarishsiz qoladi
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand

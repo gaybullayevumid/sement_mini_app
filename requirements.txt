@@ -11,6 +11,7 @@ httpx==0.28.1
 idna==3.10
 inflection==0.5.1
 packaging==25.0
+pillow==11.3.0
 pyTelegramBotAPI==4.27.0
 python-telegram-bot==22.2
 pytz==2025.2

@@ -51,6 +51,7 @@ MIDDLEWARE = [
 # CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
+    "http://sementsavdo.uz",
     "https://sementsavdo.uz",
     "http://localhost:5175",
 ]

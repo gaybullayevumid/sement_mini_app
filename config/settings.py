@@ -11,14 +11,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(_7b#-6@v(z117!f*d65u9%ln(ggr2^a@%_g&81p(%)x!i%c#n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = False
+DEBUG = False
 
-# ALLOWED_HOSTS = ['sementsavdo.uz', 'www.sementsavdo.uz']
-
-
-DEBUG = True
-
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['sementsavdo.uz', 'www.sementsavdo.uz']
 
 # Application definition
 
@@ -49,7 +44,14 @@ MIDDLEWARE = [
 ]
 
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
+
+CORS_ALLOWED_ORIGINS = [
+    "http://sementsavdo.uz",
+    "https://sementsavdo.uz",
+    "http://localhost:5175",  # agar development frontend ishlatilsa
+]
+
 CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'config.urls'

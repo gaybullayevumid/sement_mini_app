@@ -16,6 +16,7 @@ django-cors-headers==4.7.0
 django-extensions==4.1
 djangorestframework==3.16.0
 drf-yasg==1.21.10
+flake8==7.3.0
 frozenlist==1.7.0
 h11==0.16.0
 httpcore==1.0.9
@@ -24,13 +25,16 @@ idna==3.10
 inflection==0.5.1
 magic-filter==1.0.12
 MarkupSafe==3.0.2
+mccabe==0.7.0
 multidict==6.6.3
 packaging==25.0
 pillow==11.3.0
 propcache==0.3.2
+pycodestyle==2.14.0
 pycparser==2.22
 pydantic==2.11.7
 pydantic_core==2.33.2
+pyflakes==3.4.0
 pyOpenSSL==25.1.0
 pyTelegramBotAPI==4.27.0
 python-telegram-bot==22.2

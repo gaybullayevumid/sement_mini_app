@@ -28,10 +28,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # packages
     'corsheaders',
     'rest_framework',
     'drf_yasg',
+
+    # local apps
     'base'
+    'apps.products',
+    'apps.users',
 ]
 
 AUTH_USER_MODEL = 'base.CustomUser'

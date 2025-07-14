@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import CustomUser, Product, Order, Cart, Brand, Category
-from base.serializers import SellerShortSerializer
+from apps.users.models import CustomUser
+from .models import  Product, Order, Cart, Brand, Category
+from apps.users.serializers import SellerShortSerializer
 
 
 class ProductSerializer(serializers.ModelSerializer):

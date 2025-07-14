@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'apps.users',
 ]
 
-AUTH_USER_MODEL = 'base.CustomUser'
+AUTH_USER_MODEL = 'users.CustomUser'
 
 MIDDLEWARE = [
     'base.middleware.CustomCorsMiddleware',

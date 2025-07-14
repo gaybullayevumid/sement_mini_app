@@ -1,5 +1,5 @@
 from django.db import models
-from base.models import CustomUser
+from apps.users.models import CustomUser
 
 # Create your models here.
 

@@ -60,7 +60,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "http://sementsavdo.uz",
     "https://sementsavdo.uz",
-    "http://localhost:5175",  # agar development frontend ishlatilsa
+    "http://localhost:5175",
 ]
 
 CORS_ALLOW_CREDENTIALS = True

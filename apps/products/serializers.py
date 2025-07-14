@@ -1,14 +1,18 @@
 from rest_framework import serializers
 from apps.users.models import CustomUser
-from apps.users.serializers import SellerShortSerializer
+# from apps.users.serializers import SellerShortSerializer
 from .models import  Product, Order, Cart, Brand, Category
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    seller = SellerShortSerializer(read_only=True)
+    seller = serializers.SerializerMethodField()
     class Meta:
         model = Product
         fields = ['id', 'name', 'description', 'price', 'category', 'image', 'quantity', 'brand', 'seller', 'created_at']
+
+    def get_seller(self, obj):
+        from apps.users.serializers import SellerShortSerializer  # 👈 bu yerga ko'chirildi
+        return SellerShortSerializer(obj.seller).data
 
 class SellerWithProductsSerializer(serializers.ModelSerializer):
     products = ProductSerializer(many=True, read_only=True)

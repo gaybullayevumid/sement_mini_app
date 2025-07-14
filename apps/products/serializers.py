@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from apps.users.models import CustomUser
-from .models import  Product, Order, Cart, Brand, Category
 from apps.users.serializers import SellerShortSerializer
+from .models import  Product, Order, Cart, Brand, Category
 
 
 class ProductSerializer(serializers.ModelSerializer):

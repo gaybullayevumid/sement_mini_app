@@ -1,8 +1,7 @@
 from rest_framework import serializers
-from .models import CustomUser
 from apps.products.serializers import ProductSerializer
+from .models import CustomUser
 
-# Simple seller serializer for ProductSerializer
 class SellerShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser

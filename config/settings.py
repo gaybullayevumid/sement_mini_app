@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'drf_yasg',
 
     # local apps
-    'base',
+    # 'base',
     'apps.products',
     'apps.users',
 ]

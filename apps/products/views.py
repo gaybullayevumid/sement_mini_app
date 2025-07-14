@@ -1,6 +1,5 @@
 from rest_framework import viewsets, permissions
 from .models import Product, Order, Cart, Brand, Category
-from apps.users.models import CustomUser
 from .serializers import (
     ProductSerializer,
     OrderSerializer,

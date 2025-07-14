@@ -11,14 +11,13 @@ from telegram.ext import (
     filters,
 )
 
-# Logging for debugging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
 FIRSTNAME, LASTNAME, PHONE = range(3)
 
-API_URL = "http://localhost:8000/api/users/"  # Django API endpoint (o'zgartiring!)
+API_URL = "http://sementsavdo.uz/swagger/"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message:
@@ -85,7 +84,7 @@ async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return ConversationHandler.END
 
 def main():
-    TOKEN = "6667385868:AAEgEGKSM_YoHyGBAd2Xf4JwBt8tRwen6U8"  # <-- O'ZGARTIRING!
+    TOKEN = "6667385868:AAEgEGKSM_YoHyGBAd2Xf4JwBt8tRwen6U8"
     application = Application.builder().token(TOKEN).build()
 
     conv_handler = ConversationHandler(

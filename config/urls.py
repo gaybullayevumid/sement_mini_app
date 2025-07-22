@@ -25,7 +25,7 @@ urlpatterns = [
     path('api/', include('apps.products.urls')),
     path('api/', include('apps.users.urls')),
     path(
-        "swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema json"
+        "", schema_view.with_ui("swagger", cache_timeout=0), name="schema json"
     ),
 ]
 

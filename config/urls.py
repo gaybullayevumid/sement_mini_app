@@ -9,7 +9,7 @@ from drf_yasg import openapi
 schema_view = get_schema_view(
     openapi.Info(
         title="Sement Savdo",
-        default_version="v1",
+        default_version="v2.0.1",
         description="API documentation for sement savdo",
         contact=openapi.Contact(email="umidgaybullayev955@gmail.com"),
         license=openapi.License(name="IT Park License"),
